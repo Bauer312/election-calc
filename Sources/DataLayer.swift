@@ -46,4 +46,36 @@ class DataLayer {
 
     return result
   }
+
+  func getCongressionalCandidates(date: String, electionType: String) -> [congressionalCandidate] {
+    var result : [congressionalCandidate] = []
+
+    var statement = "SELECT state, district, candidate, sum(votes) FROM federal.federal_rep"
+    statement += " WHERE election_date = \'"
+    statement += date
+    statement += "\' AND election_type = \'"
+    statement += electionType
+    statement += "\' GROUP BY state, district, candidate ORDER BY state, district, candidate"
+    let queryresult : PGResult = pgConn.exec(statement : statement)
+    let numRows = queryresult.numTuples()
+    for i in 0..<numRows {
+      if let stateValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 0) {
+        if let districtValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 1) {
+          if let candidateValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 2) {
+            if let voteValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 3) {
+              if let intVoteValue : Int = Int(voteValue) {
+                result.append(congressionalCandidate(
+                  state: stateValue,
+                  district: districtValue,
+                  name: candidateValue,
+                  votes : intVoteValue))
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return result
+  }
 }

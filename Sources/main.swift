@@ -1,5 +1,3 @@
-import PostgreSQL
-
 let pgConn = DataLayer(host: "localhost", port: "5432", database: "election")
 if pgConn.connect() == true {
   print("The connection was successful")
@@ -8,6 +6,8 @@ if pgConn.connect() == true {
 
   for election : String in elections {
     print(election)
+    let candidates : [congressionalCandidate] = pgConn.getCongressionalCandidates(date: election, electionType: "general")
+    print(candidates[0])
   }
   pgConn.disconnect()
 } else {
