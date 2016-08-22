@@ -21,4 +21,10 @@ struct contestedSeat {
   var state : String
   var district : String
   var candidates : [candidate]
+
+
+}
+
+func candidateSorter(_ this: candidate, _ that: candidate) -> Bool {
+  return this.votes > that.votes
 }

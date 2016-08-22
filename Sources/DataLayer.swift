@@ -70,6 +70,11 @@ class DataLayer {
                 //If we have yet to see this combination before, create it and
                 //then start appending candidates to it
                 if stateValue != currentState || districtValue != currentDistrict {
+                  //Might as well sort the current seat before moving on
+                  if seats.count > 0 {
+                    seats[seatIndex].candidates.sort(by: candidateSorter)
+                  }
+
                   seats.append(
                     contestedSeat(
                       state: stateValue,
@@ -93,6 +98,10 @@ class DataLayer {
           }
         }
       }
+    }
+    //Sot the very last one before returning
+    if seats.count > 0 {
+      seats[seatIndex].candidates.sort(by: candidateSorter)
     }
     return seats
   }
@@ -120,6 +129,11 @@ class DataLayer {
               //If we have yet to see this before, create it and
               //then start appending candidates to it
               if stateValue != currentState {
+                //Might as well sort the current seat before moving on
+                if seats.count > 0 {
+                  seats[seatIndex].candidates.sort(by: candidateSorter)
+                }
+
                 seats.append(
                   contestedSeat(
                     state: stateValue,
@@ -141,6 +155,10 @@ class DataLayer {
           }
         }
       }
+    }
+    //Sot the very last one before returning
+    if seats.count > 0 {
+      seats[seatIndex].candidates.sort(by: candidateSorter)
     }
     return seats
   }
