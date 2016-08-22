@@ -47,8 +47,11 @@ class DataLayer {
     return result
   }
 
-  func getCongressionalCandidates(date: String, electionType: String) -> [congressionalCandidate] {
-    var result : [congressionalCandidate] = []
+  func getCongressionalCandidates(date: String, electionType: String) -> [contestedSeat] {
+    var seats : [contestedSeat] = []
+    var seatIndex = 0
+    var currentState = "None"
+    var currentDistrict = "None"
 
     var statement = "SELECT state, district, candidate, sum(votes) FROM federal.federal_rep"
     statement += " WHERE election_date = \'"
@@ -64,9 +67,58 @@ class DataLayer {
           if let candidateValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 2) {
             if let voteValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 3) {
               if let intVoteValue : Int = Int(voteValue) {
-                result.append(congressionalCandidate(
+                //If we have yet to see this combination before, create it and
+                //then start appending candidates to it
+                if stateValue != currentState || districtValue != currentDistrict {
+                  seats.append(
+                    contestedSeat(
+                      state: stateValue,
+                      district: districtValue,
+                      candidates: []
+                    )
+                  )
+                  currentState = stateValue
+                  currentDistrict = districtValue
+                  seatIndex = seats.count - 1
+                }
+
+                seats[seatIndex].candidates.append(
+                  candidate(
+                    name: candidateValue,
+                    votes: intVoteValue
+                  )
+                )
+              }
+            }
+          }
+        }
+      }
+    }
+    return seats
+  }
+
+  func getSenateCandidates(date: String, electionType: String, termType: String) -> [senateCandidate] {
+    var result : [senateCandidate] = []
+
+    var statement = "SELECT state, term_type, candidate, sum(votes) FROM federal.federal_sen"
+    statement += " WHERE election_date = \'"
+    statement += date
+    statement += "\' AND election_type = \'"
+    statement += electionType
+    statement += "\' AND term_type = \'"
+    statement += termType
+    statement += "\' GROUP BY state, term_type, candidate ORDER BY state, term_type, candidate"
+    let queryresult : PGResult = pgConn.exec(statement : statement)
+    let numRows = queryresult.numTuples()
+    for i in 0..<numRows {
+      if let stateValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 0) {
+        if let termValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 1) {
+          if let candidateValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 2) {
+            if let voteValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 3) {
+              if let intVoteValue : Int = Int(voteValue) {
+                result.append(senateCandidate(
                   state: stateValue,
-                  district: districtValue,
+                  term: termValue,
                   name: candidateValue,
                   votes : intVoteValue))
               }
@@ -75,7 +127,6 @@ class DataLayer {
         }
       }
     }
-
     return result
   }
 }

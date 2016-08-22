@@ -6,7 +6,7 @@ if pgConn.connect() == true {
 
   for election : String in elections {
     print(election)
-    let candidates : [congressionalCandidate] = pgConn.getCongressionalCandidates(date: election, electionType: "general")
+    let candidates : [contestedSeat] = pgConn.getCongressionalCandidates(date: election, electionType: "general")
     print(candidates[0])
   }
   pgConn.disconnect()
