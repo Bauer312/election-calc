@@ -97,36 +97,51 @@ class DataLayer {
     return seats
   }
 
-  func getSenateCandidates(date: String, electionType: String, termType: String) -> [senateCandidate] {
-    var result : [senateCandidate] = []
+  func getSenateCandidates(date: String, electionType: String, termType: String) -> [contestedSeat] {
+    var seats : [contestedSeat] = []
+    var seatIndex = 0
+    var currentState = "None"
 
-    var statement = "SELECT state, term_type, candidate, sum(votes) FROM federal.federal_sen"
+    var statement = "SELECT state, candidate, sum(votes) FROM federal.federal_sen"
     statement += " WHERE election_date = \'"
     statement += date
     statement += "\' AND election_type = \'"
     statement += electionType
     statement += "\' AND term_type = \'"
     statement += termType
-    statement += "\' GROUP BY state, term_type, candidate ORDER BY state, term_type, candidate"
+    statement += "\' GROUP BY state, candidate ORDER BY state, candidate"
     let queryresult : PGResult = pgConn.exec(statement : statement)
     let numRows = queryresult.numTuples()
     for i in 0..<numRows {
       if let stateValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 0) {
-        if let termValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 1) {
-          if let candidateValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 2) {
-            if let voteValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 3) {
-              if let intVoteValue : Int = Int(voteValue) {
-                result.append(senateCandidate(
-                  state: stateValue,
-                  term: termValue,
-                  name: candidateValue,
-                  votes : intVoteValue))
+        if let candidateValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 1) {
+          if let voteValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 2) {
+            if let intVoteValue : Int = Int(voteValue) {
+              //If we have yet to see this before, create it and
+              //then start appending candidates to it
+              if stateValue != currentState {
+                seats.append(
+                  contestedSeat(
+                    state: stateValue,
+                    district: "None",
+                    candidates: []
+                  )
+                )
+                currentState = stateValue
+                seatIndex = seats.count - 1
               }
+
+              seats[seatIndex].candidates.append(
+                candidate(
+                  name: candidateValue,
+                  votes: intVoteValue
+                )
+              )
             }
           }
         }
       }
     }
-    return result
+    return seats
   }
 }
