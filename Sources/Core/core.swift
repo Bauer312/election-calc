@@ -12,7 +12,7 @@ func trimCandidates(candidates: [candidate], keep: Int) -> [candidate] {
 
 public func processCandidates(seat: contestedSeat) -> contestedSeat {
   var result = seat
-  //result.candidates.sort(by: candidateSorter)
-  //result.candidates = trimCandidates(candidates: seat.candidates, keep: 2)
+  result.candidates.sort(by: candidateSorter)
+  result.candidates = trimCandidates(candidates: seat.candidates, keep: 2)
   return result
 }
