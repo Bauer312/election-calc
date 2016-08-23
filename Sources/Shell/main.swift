@@ -1,3 +1,6 @@
+import Boundary
+import Core
+
 let pgConn = DataLayer(host: "localhost", port: "5432", database: "election")
 if pgConn.connect() == true {
   print("The connection was successful")
@@ -6,8 +9,8 @@ if pgConn.connect() == true {
 
   for election : String in elections {
     print(election)
-    let congress : [contestedSeat] = pgConn.getCongressionalCandidates(date: election, electionType: "general")
-    let senate : [contestedSeat] = pgConn.getSenateCandidates(date: election, electionType: "general", termType: "full")
+    var congress : [contestedSeat] = pgConn.getCongressionalCandidates(date: election, electionType: "general")
+    var senate : [contestedSeat] = pgConn.getSenateCandidates(date: election, electionType: "general", termType: "full")
     print(congress[4])
     print(senate[7])
   }

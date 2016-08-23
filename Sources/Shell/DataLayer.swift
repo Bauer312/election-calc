@@ -1,12 +1,14 @@
 import PostgreSQL
+import Boundary
+import Core
 
-class DataLayer {
+public class DataLayer {
   var connectionString: String
   var db : PGConnection
 
 
 
-  init(host: String, port: String, database: String) {
+  public init(host: String, port: String, database: String) {
     connectionString = "host=" + host
     connectionString += " port=" + port
     connectionString += " dbname=" + database
@@ -14,7 +16,7 @@ class DataLayer {
     db = PGConnection()
   }
 
-  func connect () -> Bool {
+  public func connect () -> Bool {
     let connectionResult : PGConnection.StatusType = db.connectdb(connectionString)
     if connectionResult == .ok {
       return true
@@ -23,7 +25,7 @@ class DataLayer {
     }
   }
 
-  func disconnect () {
+  public func disconnect () {
     db.close()
   }
 
@@ -31,12 +33,12 @@ class DataLayer {
     return db.exec(statement: statement)
   }
 
-  func getElections(electionType: String) -> [String] {
+  public func getElections(electionType: String) -> [String] {
     var result : [String] = []
     var statement = "SELECT DISTINCT election_date FROM federal.federal_rep WHERE election_type = \'"
     statement += electionType
     statement += "\' ORDER BY election_date DESC"
-    let queryresult : PGResult = pgConn.exec(statement : statement)
+    let queryresult : PGResult = db.exec(statement : statement)
     let numRows = queryresult.numTuples()
     for i in 0..<numRows {
       if let value : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 0) {
@@ -47,7 +49,7 @@ class DataLayer {
     return result
   }
 
-  func getCongressionalCandidates(date: String, electionType: String) -> [contestedSeat] {
+  public func getCongressionalCandidates(date: String, electionType: String) -> [contestedSeat] {
     var seats : [contestedSeat] = []
     var seatIndex = 0
     var currentState = "None"
@@ -59,7 +61,7 @@ class DataLayer {
     statement += "\' AND election_type = \'"
     statement += electionType
     statement += "\' GROUP BY state, district, candidate ORDER BY state, district, candidate"
-    let queryresult : PGResult = pgConn.exec(statement : statement)
+    let queryresult : PGResult = db.exec(statement : statement)
     let numRows = queryresult.numTuples()
     for i in 0..<numRows {
       if let stateValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 0) {
@@ -70,17 +72,8 @@ class DataLayer {
                 //If we have yet to see this combination before, create it and
                 //then start appending candidates to it
                 if stateValue != currentState || districtValue != currentDistrict {
-                  //Might as well sort the current seat before moving on
-                  if seats.count > 0 {
-                    seats[seatIndex].candidates.sort(by: candidateSorter)
-                  }
-
                   seats.append(
-                    contestedSeat(
-                      state: stateValue,
-                      district: districtValue,
-                      candidates: []
-                    )
+                    createSeat(state: stateValue, district: districtValue)
                   )
                   currentState = stateValue
                   currentDistrict = districtValue
@@ -88,10 +81,7 @@ class DataLayer {
                 }
 
                 seats[seatIndex].candidates.append(
-                  candidate(
-                    name: candidateValue,
-                    votes: intVoteValue
-                  )
+                  createCandidate(name: candidateValue, votes: intVoteValue)
                 )
               }
             }
@@ -99,14 +89,10 @@ class DataLayer {
         }
       }
     }
-    //Sot the very last one before returning
-    if seats.count > 0 {
-      seats[seatIndex].candidates.sort(by: candidateSorter)
-    }
     return seats
   }
 
-  func getSenateCandidates(date: String, electionType: String, termType: String) -> [contestedSeat] {
+  public func getSenateCandidates(date: String, electionType: String, termType: String) -> [contestedSeat] {
     var seats : [contestedSeat] = []
     var seatIndex = 0
     var currentState = "None"
@@ -119,7 +105,7 @@ class DataLayer {
     statement += "\' AND term_type = \'"
     statement += termType
     statement += "\' GROUP BY state, candidate ORDER BY state, candidate"
-    let queryresult : PGResult = pgConn.exec(statement : statement)
+    let queryresult : PGResult = db.exec(statement : statement)
     let numRows = queryresult.numTuples()
     for i in 0..<numRows {
       if let stateValue : String = queryresult.getFieldString(tupleIndex: i, fieldIndex: 0) {
@@ -129,36 +115,20 @@ class DataLayer {
               //If we have yet to see this before, create it and
               //then start appending candidates to it
               if stateValue != currentState {
-                //Might as well sort the current seat before moving on
-                if seats.count > 0 {
-                  seats[seatIndex].candidates.sort(by: candidateSorter)
-                }
-
                 seats.append(
-                  contestedSeat(
-                    state: stateValue,
-                    district: "None",
-                    candidates: []
-                  )
+                  createSeat(state: stateValue, district: "None")
                 )
                 currentState = stateValue
                 seatIndex = seats.count - 1
               }
 
               seats[seatIndex].candidates.append(
-                candidate(
-                  name: candidateValue,
-                  votes: intVoteValue
-                )
+                createCandidate(name: candidateValue, votes: intVoteValue)
               )
             }
           }
         }
       }
-    }
-    //Sot the very last one before returning
-    if seats.count > 0 {
-      seats[seatIndex].candidates.sort(by: candidateSorter)
     }
     return seats
   }
