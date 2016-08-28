@@ -21,10 +21,20 @@ public struct contestedSeat {
   public var candidates : [candidate]
 }
 
+public struct seatCalculation {
+  public var state : String
+  public var district : String
+  public var raw : Double
+}
+
 public func createSeat(state: String, district: String) -> contestedSeat {
   return contestedSeat(state: state, district: district, candidates: [])
 }
 
 public func createCandidate(name: String, votes: Int) -> candidate {
   return candidate(name: name, votes: votes)
+}
+
+public func createCalculation(state: String, district: String) -> seatCalculation {
+  return seatCalculation(state: state, district: district, raw: 0.0)
 }

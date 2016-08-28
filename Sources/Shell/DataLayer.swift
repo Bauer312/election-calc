@@ -75,7 +75,7 @@ public class DataLayer {
                   //Before adding the new seat, process the current one
                   if seats.count > 0 {
                     seats[seatIndex].candidates.sort(by: candidateSorter)
-                    seats[seatIndex].candidates = trimCandidates(candidates: seats[seatIndex].candidates, keep: 2)
+                    //seats[seatIndex].candidates = trimCandidates(candidates: seats[seatIndex].candidates, keep: 2)
                   }
 
                   seats.append(
@@ -98,7 +98,7 @@ public class DataLayer {
     //Before returning, process the last one
     if seats.count > 0 {
       seats[seatIndex].candidates.sort(by: candidateSorter)
-      seats[seatIndex].candidates = trimCandidates(candidates: seats[seatIndex].candidates, keep: 2)
+      //seats[seatIndex].candidates = trimCandidates(candidates: seats[seatIndex].candidates, keep: 2)
     }
     return seats
   }
@@ -129,9 +129,9 @@ public class DataLayer {
                 //Before adding the new seat, process the current one
                 if seats.count > 0 {
                   seats[seatIndex].candidates.sort(by: candidateSorter)
-                  seats[seatIndex].candidates = trimCandidates(candidates: seats[seatIndex].candidates, keep: 2)
+                  //seats[seatIndex].candidates = trimCandidates(candidates: seats[seatIndex].candidates, keep: 2)
                 }
-                
+
                 seats.append(
                   createSeat(state: stateValue, district: "None")
                 )
@@ -150,7 +150,7 @@ public class DataLayer {
     //Before returning, process the last one
     if seats.count > 0 {
       seats[seatIndex].candidates.sort(by: candidateSorter)
-      seats[seatIndex].candidates = trimCandidates(candidates: seats[seatIndex].candidates, keep: 2)
+      //seats[seatIndex].candidates = trimCandidates(candidates: seats[seatIndex].candidates, keep: 2)
     }
     return seats
   }

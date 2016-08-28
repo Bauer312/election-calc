@@ -13,14 +13,16 @@ if pgConn.connect() == true {
     congress.seats = pgConn.getCongressionalCandidates(date: electionDate, electionType: "general")
     print("The congressional election has \(congress.seats.count) contested seats.")
     for seat in congress.seats {
-      print(seat)
+      let seatCalc = produceRawScore(seat: seat)
+      print(seatCalc)
     }
 
     var senate = election(date: electionDate, office: "Senate")
     senate.seats = pgConn.getSenateCandidates(date: electionDate, electionType: "general", termType: "full")
     print("The senate election has \(senate.seats.count) contested seats.")
     for seat in senate.seats {
-      print(seat)
+      let seatCalc = produceRawScore(seat: seat)
+      print(seatCalc)
     }
 
     elections.append(congress)
