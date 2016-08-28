@@ -24,7 +24,7 @@ public struct contestedSeat {
 public struct seatCalculation {
   public var state : String
   public var district : String
-  public var raw : Double
+  public var index : Double
 }
 
 public func createSeat(state: String, district: String) -> contestedSeat {
@@ -36,5 +36,5 @@ public func createCandidate(name: String, votes: Int) -> candidate {
 }
 
 public func createCalculation(state: String, district: String) -> seatCalculation {
-  return seatCalculation(state: state, district: district, raw: 0.0)
+  return seatCalculation(state: state, district: district, index: 0.0)
 }
