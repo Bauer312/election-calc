@@ -1,17 +1,16 @@
 import Boundary
 
-public func applyMethodology(seats: [contestedSeat]) {
+public func applyMethodology(seats: [contestedSeat], date: String, office: String) {
   var intermediateSeats : [seatCalculation] = []
   for seat in seats {
     let seatCalc = produceRawScore(seat: seat)
     intermediateSeats.append(seatCalc)
-    //print(seatCalc)
   }
 
   intermediateSeats = normalizeScore(seats: intermediateSeats)
 
   for seat in intermediateSeats {
-    print(seat)
+    print("\(date) | \(office) | \(seat.state) | \(seat.district) | \(seat.index)")
   }
 }
 

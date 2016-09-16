@@ -12,12 +12,12 @@ if pgConn.connect() == true {
     var congress = election(date: electionDate, office: "Congress")
     congress.seats = pgConn.getCongressionalCandidates(date: electionDate, electionType: "general")
     print("The congressional election has \(congress.seats.count) contested seats.")
-    applyMethodology(seats: congress.seats)
+    applyMethodology(seats: congress.seats, date: electionDate, office: "Congress")
 
     var senate = election(date: electionDate, office: "Senate")
     senate.seats = pgConn.getSenateCandidates(date: electionDate, electionType: "general", termType: "full")
     print("The senate election has \(senate.seats.count) contested seats.")
-    applyMethodology(seats: senate.seats)
+    applyMethodology(seats: senate.seats, date: electionDate, office: "Senate")
 
     elections.append(congress)
     elections.append(senate)
