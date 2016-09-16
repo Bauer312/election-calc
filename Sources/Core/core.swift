@@ -7,7 +7,7 @@ public func candidateSorter(_ this: candidate, _ that: candidate) -> Bool {
 
 // Ensure that only a specified number of candidates remain
 public func trimCandidates(candidates: [candidate], keep: Int) -> [candidate] {
-  guard candidates.count > 2 else {
+  guard candidates.count > keep else {
     return candidates
   }
 

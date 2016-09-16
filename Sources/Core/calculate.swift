@@ -5,19 +5,12 @@ public func applyMethodology(seats: [contestedSeat]) {
   for seat in seats {
     let seatCalc = produceRawScore(seat: seat)
     intermediateSeats.append(seatCalc)
+    //print(seatCalc)
   }
 
-  var seatIndex = produceIntermediateScore(seats: intermediateSeats, highFilter: 100.0)
-  if doUpperOutliersExist(seats: seatIndex, highValue: 65.0, lowValue: 65.0) == true {
-    seatIndex = produceIntermediateScore(seats: seatIndex, highFilter: 65.0)
-  }
-  if doUpperOutliersExist(seats: seatIndex, highValue: 65.0, lowValue: 65.0) == true {
-    seatIndex = produceIntermediateScore(seats: seatIndex, highFilter: 65.0)
-  }
-  if doUpperOutliersExist(seats: seatIndex, highValue: 65.0, lowValue: 65.0) == true {
-    seatIndex = produceIntermediateScore(seats: seatIndex, highFilter: 65.0)
-  }
-  for seat in seatIndex {
+  intermediateSeats = normalizeScore(seats: intermediateSeats)
+
+  for seat in intermediateSeats {
     print(seat)
   }
 }
@@ -25,38 +18,21 @@ public func applyMethodology(seats: [contestedSeat]) {
 func produceRawScore(seat: contestedSeat) -> seatCalculation {
   var result = createCalculation(state: seat.state, district: seat.district)
 
-  var trimmedCandidates = trimCandidates(candidates: seat.candidates, keep: 2)
+  var trimmedCandidates = trimCandidates(candidates: seat.candidates, keep: 3)
 
-  if trimmedCandidates.count < 2 {
-    result.index = 0
-  } else {
-    let difference = trimmedCandidates[0].votes - trimmedCandidates[1].votes
-    result.index = 1.0 / Double(difference)
-  }
+  result.index = 1.0 - Double(trimmedCandidates[0].votes) / Double(seatVotes(seats: trimmedCandidates))
+
   return result
 }
 
-func produceIntermediateScore(seats: [seatCalculation], highFilter: Double) -> [seatCalculation] {
+func normalizeScore(seats: [seatCalculation]) -> [seatCalculation] {
   var result : [seatCalculation] = []
-  var intermediate : [seatCalculation] = []
 
-  for seat in seats {
-    if seat.index == 0.0 {
-      result.append(seat)
-    } else if seat.index >= highFilter {
-      var newSeat = createCalculation(state: seat.state, district: seat.district)
-      newSeat.index = 100.0
-      result.append(newSeat)
-    } else {
-      intermediate.append(seat)
-    }
-  }
-
-  let min = seatMin(seats: intermediate)
-  let max = seatMax(seats: intermediate)
+  let min = seatMin(seats: seats)
+  let max = seatMax(seats: seats)
   let denominator = max - min
 
-  for seat in intermediate {
+  for seat in seats {
     var newSeat = createCalculation(state: seat.state, district: seat.district)
     newSeat.index = Double(Int(((seat.index - min) / denominator) * 100.0))
     result.append(newSeat)
@@ -84,6 +60,16 @@ func seatMax(seats: [seatCalculation]) -> Double {
     if seats[i].index > result {
       result = seats[i].index
     }
+  }
+
+  return result
+}
+
+func seatVotes(seats: [candidate]) -> Int {
+  var result: Int = seats[0].votes
+
+  for i in 1..<seats.count {
+    result = result + seats[i].votes
   }
 
   return result
