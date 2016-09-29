@@ -1,7 +1,7 @@
 import Boundary
 
-public func applyMethodology(seats: [contestedSeat], date: String, office: String) {
-  var intermediateSeats : [seatCalculation] = []
+public func applyMethodology(seats: [contestedSeat], date: String, office: String) -> [contestedSeat]{
+  var intermediateSeats : [contestedSeat] = []
   for seat in seats {
     let seatCalc = produceRawScore(seat: seat)
     intermediateSeats.append(seatCalc)
@@ -9,13 +9,11 @@ public func applyMethodology(seats: [contestedSeat], date: String, office: Strin
 
   intermediateSeats = normalizeScore(seats: intermediateSeats)
 
-  for seat in intermediateSeats {
-    print("\(date) | \(office) | \(seat.state) | \(seat.district) | \(seat.index)")
-  }
+  return intermediateSeats
 }
 
-func produceRawScore(seat: contestedSeat) -> seatCalculation {
-  var result = createCalculation(state: seat.state, district: seat.district)
+func produceRawScore(seat: contestedSeat) -> contestedSeat {
+  var result = createSeat(state: seat.state, district: seat.district)
 
   var trimmedCandidates = trimCandidates(candidates: seat.candidates, keep: 3)
 
@@ -24,15 +22,15 @@ func produceRawScore(seat: contestedSeat) -> seatCalculation {
   return result
 }
 
-func normalizeScore(seats: [seatCalculation]) -> [seatCalculation] {
-  var result : [seatCalculation] = []
+func normalizeScore(seats: [contestedSeat]) -> [contestedSeat] {
+  var result : [contestedSeat] = []
 
   let min = seatMin(seats: seats)
   let max = seatMax(seats: seats)
   let denominator = max - min
 
   for seat in seats {
-    var newSeat = createCalculation(state: seat.state, district: seat.district)
+    var newSeat = createSeat(state: seat.state, district: seat.district)
     newSeat.index = Double(Int(((seat.index - min) / denominator) * 100.0))
     result.append(newSeat)
   }
@@ -40,7 +38,7 @@ func normalizeScore(seats: [seatCalculation]) -> [seatCalculation] {
   return result
 }
 
-func seatMin(seats: [seatCalculation]) -> Double {
+func seatMin(seats: [contestedSeat]) -> Double {
   var result: Double = seats[0].index
 
   for i in 1..<seats.count {
@@ -52,7 +50,7 @@ func seatMin(seats: [seatCalculation]) -> Double {
   return result
 }
 
-func seatMax(seats: [seatCalculation]) -> Double {
+func seatMax(seats: [contestedSeat]) -> Double {
   var result: Double = seats[0].index
 
   for i in 1..<seats.count {
@@ -74,7 +72,7 @@ func seatVotes(seats: [candidate]) -> Int {
   return result
 }
 
-func doUpperOutliersExist(seats: [seatCalculation], highValue: Double, lowValue: Double) -> Bool {
+func doUpperOutliersExist(seats: [contestedSeat], highValue: Double, lowValue: Double) -> Bool {
   var highCount = 0
   var lowCount = 0
   for seat in seats {

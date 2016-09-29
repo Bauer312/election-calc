@@ -4,7 +4,7 @@ let package = Package(
     name: "election-calc",
     targets: [
       Target(
-        name: "Shell",
+        name: "CalcIndex",
         dependencies: [
           .Target(name: "Boundary"),
           .Target(name: "Core")
