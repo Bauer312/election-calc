@@ -20,7 +20,7 @@ if pgConn.connect() == true {
     print("The congressional election has \(congress.seats.count) contested seats.")
     congress.seats = applyMethodology(seats: congress.seats, date: electionDate, office: "Congress")
     for seat in congress.seats {
-      seatText.append("\(electionDate)|\(seat.state)|Congress|\(seat.district)|\(seat.index)\n")
+      seatText.append("\(electionDate)|general|\(seat.state)|Congress|\(seat.district)|\(seat.index)\n")
     }
 
     var senate = election(date: electionDate, office: "Senate")
@@ -28,7 +28,7 @@ if pgConn.connect() == true {
     print("The senate election has \(senate.seats.count) contested seats.")
     senate.seats = applyMethodology(seats: senate.seats, date: electionDate, office: "Senate")
     for seat in senate.seats {
-      seatText.append("\(electionDate)|\(seat.state)|Senate||\(seat.index)\n")
+      seatText.append("\(electionDate)|general|\(seat.state)|Senate|N/A|\(seat.index)\n")
     }
 
     elections.append(congress)
